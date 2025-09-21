@@ -15,46 +15,23 @@ const gGame = {
     secsPassed: 0
 }
 
+var gInterval = null
+
 var gBoard
-
-// var gBoard = [
-// [   {minesAroundCount: 4, isRevealed: false, isMine: false, isMarked: false },
-//     {minesAroundCount: 4, isRevealed: false, isMine: false, isMarked: false },
-//     {minesAroundCount: 4, isRevealed: false, isMine: false, isMarked: false },
-//     {minesAroundCount: 4, isRevealed: false, isMine: false, isMarked: false }
-// ],
-// [   {minesAroundCount: 4, isRevealed: false, isMine: false, isMarked: false },
-//     {minesAroundCount: 4, isRevealed: false, isMine: false, isMarked: false },
-//     {minesAroundCount: 4, isRevealed: false, isMine: false, isMarked: false },
-//     {minesAroundCount: 4, isRevealed: false, isMine: false, isMarked: false }],
-// [
-//     {minesAroundCount: 4, isRevealed: false, isMine: false, isMarked: false },
-//     {minesAroundCount: 4, isRevealed: false, isMine: false, isMarked: false },
-//     {minesAroundCount: 4, isRevealed: false, isMine: false, isMarked: false },
-//     {minesAroundCount: 4, isRevealed: false, isMine: false, isMarked: false }
-// ],
-// [
-//     {minesAroundCount: 4, isRevealed: false, isMine: false, isMarked: false },
-//     {minesAroundCount: 4, isRevealed: false, isMine: false, isMarked: false },
-//     {minesAroundCount: 4, isRevealed: false, isMine: false, isMarked: false },
-//     {minesAroundCount: 4, isRevealed: false, isMine: false, isMarked: false }
-// ]
-// ]
-
-
-
-
-
-
-
-
 
 
 function onInit() {
+    gGame.isOn = true
+    gGame.secsPassed = 0
+    if (gInterval) {
+        clearInterval(gInterval)
+        gInterval = null
+    }
+
     console.log('hi')
     gBoard = buildBoard(gLevel.SIZE)
     console.log(gBoard)
-    
+
     var elTdMines = document.querySelector('#mines')
     elTdMines.innerText = gLevel.MINES
 
@@ -105,11 +82,27 @@ function renderBoard() {
 
     }
     elBody.innerHTML = strHtml
-    console.log (elBody)
+    console.log(elBody)
 
 }
 
+function setTimer() {
+
+    gGame.secsPassed++
+    console.log(gGame.secsPassed)
+    var elTimer = document.querySelector('#timer')
+    elTimer.innerText = gGame.secsPassed
+}
+
 function onCellClicked(elCell, ev, i, j) {
+    if (!gGame.isOn) return
+
+    if (!gInterval) {
+        gInterval = setInterval(setTimer, 1000)
+
+    }
+
+
     if (ev.ctrlKey) {
         markCell(elCell, i, j)
     }
@@ -119,17 +112,23 @@ function onCellClicked(elCell, ev, i, j) {
 }
 
 function markCell(elCell, i, j) {
-    console.log('marking')
     elCell.innerHTML = IMG_FLAG
     console.log(elCell)
 }
 
 function revealCell(elCell, i, j) {
-        console.log('revealing')
 
-}
+    gBoard[i][j].isRevealed = true
+    gGame.revealedCount++
+    elCell.classList.remove('unrevealed')
+    elCell.classList.add('revealed')
+    if (gBoard[i][j].isMine) {
+        elCell.innerHTML = IMG_MINE
+        clearInterval(gInterval)
+        gInterval = null
+        gGame.isOn = false
+    }
 
-function onCellMarked(elCell, i, j) {
 
 }
 
